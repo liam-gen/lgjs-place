@@ -4,69 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LGJS Place</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
 
-    <div id="notification" class="hidden">
-        <p id="message"></p>
-        <button id="close-button" onClick="closeNotification()">
-          Close
-        </button>
-        <button id="restart-button" onClick="restartApp()" class="hidden">
-          Restart
-        </button>
-      </div>
+    <!-- STATUS -->
 
+    <div id="status">
+        Vous êtes actuellement hors ligne !
+    </div>
 
-    <h1>Hello World 12345</h1>
-  <p id="version"></p>
-  <script>
-    const { ipcRenderer } = require('electron');
-    const version = document.getElementById('version');
+    <!-- BOTTOM MENU -->
+
+    <div class="bottom-menu">
+
+            <div class="selected">
+                <a href="index.html">
+                    <img src="../assets/icons/house.svg" alt="Accueil" title="Accueil">
+                </a>
+            </div>
     
-    ipcRenderer.send('app_version');
-    ipcRenderer.on('app_version', (event, arg) => {
-      ipcRenderer.removeAllListeners('app_version');
-      version.innerText = 'Version ' + arg.version;
-    });
+            <div>
+                <a href="applications.html">
+                    <img src="../assets/icons/applications.svg" alt="Applications" title="Applications">
+                </a>
+            </div>
+    
+            <div>
+                <a href="settings.html">
+                    <img src="../assets/icons/gear.svg" alt="Paramètres" title="Paramètres">
+                </a>
+            </div>
+    </div>
 
-    const notification = document.getElementById('notification');
-const message = document.getElementById('message');
-const restartButton = document.getElementById('restart-button');
-ipcRenderer.on('update_available', () => {
-  ipcRenderer.removeAllListeners('update_available');
-  message.innerText = 'A new update is available. Downloading now...';
-  notification.classList.remove('hidden');
-});
-ipcRenderer.on('update_downloaded', () => {
-  ipcRenderer.removeAllListeners('update_downloaded');
-  message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
-  restartButton.classList.remove('hidden');
-  notification.classList.remove('hidden');
-});
+    <header>
+        <h1>Accueil</h1>
+    </header>
 
-function closeNotification() {
-  notification.classList.add('hidden');
-}
-function restartApp() {
-  ipcRenderer.send('restart_app');
-}
-  </script>
+    <main>
+        
+        <div class="stats">
+            <div class="info" id="installed-apps">
+                <span>0</span>
+                <p>Applications installées</p>
+            </div>
+        </div>
+    </main>
 
-  <style>
-    #notification {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 200px;
-  padding: 20px;
-  border-radius: 5px;
-  background-color: white;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-}
-.hidden {
-  display: none;
-}
-  </style>
+    <footer>
+        <img src="../assets/images/banner.png" alt="">
+    </footer>
+
+    <script>
+        const {ipcRenderer} = require("electron");
+        const fs = require("fs");
+
+        document.addEventListener("DOMContentLoaded", function(){
+            const div = document.querySelector("#installed-apps span");
+            const data = JSON.parse(fs.readFileSync(__dirname+"/../cache/cache.json", "utf8"));
+
+            div.innerHTML = data["installed_apps_number"]
+
+            ipcRenderer.send("get-apps")
+
+            const updateOnlineStatus = () => {
+                if(navigator.onLine){
+                    document.getElementById('status').style.opacity = "0"
+                    document.getElementById('status').style.display = "none"
+                }
+                else{
+                    document.getElementById('status').style.opacity = "1"
+                    document.getElementById('status').style.display = "block"
+                }
+            }
+
+            window.addEventListener('online', updateOnlineStatus)
+            window.addEventListener('offline', updateOnlineStatus)
+
+            updateOnlineStatus()
+        })
+
+        ipcRenderer.on("return-apps", (a, apps) => {
+            const div = document.querySelector("#installed-apps span");
+            div.innerHTML = apps.length
+        })
+        
+    </script>
 </body>
 </html>

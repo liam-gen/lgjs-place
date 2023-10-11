@@ -1,14 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const fs = require("fs");
 
-let win;
-
-function sendStatusToWindow(text) {
-    console.log(text);
-    win.webContents.send('message', text);
-  }
 function createWindow() {
-    win = new BrowserWindow({
+    const win = new BrowserWindow({
         height: 600,
         width: 800,
         autoHideMenuBar: true,
@@ -22,28 +16,20 @@ function createWindow() {
     });
 
     win.setTitle('LGJS Place');
-    win.loadURL(`file://${__dirname}/pages/index.html#v${app.getVersion()}`);
-
-    /* AUTO UPDATER */
-
-    win.once('ready-to-show', () => {
-        autoUpdater.checkForUpdatesAndNotify();
-    });
-
-    autoUpdater.on('update-available', () => {
-        mainWindow.webContents.send('update_available');
-    });
-
-    autoUpdater.on('update-downloaded', () => {
-        mainWindow.webContents.send('update_downloaded');
-    });
-
+    win.loadFile("pages/index.html");
 }
 
-ipcMain.on('restart_app', () => {
-    autoUpdater.quitAndInstall();
-  });
+ipcMain.on("get-apps", function(e){
+    const {getAllInstalledSoftware} = require("fetch-installed-software")
 
+    getAllInstalledSoftware().then(apps => {
+        e.sender.send("return-apps", apps)
+        let data = JSON.parse(fs.readFileSync(__dirname+"/cache/cache.json", "utf-8"))
+        data["installed_apps_number"] = apps.length;
+        console.log(data)
+        fs.writeFileSync(__dirname+"/cache/cache.json", JSON.stringify(data))
+    })
+})
 
 app.whenReady().then(createWindow);
 
@@ -51,10 +37,6 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
-});
-
-ipcMain.on('app_version', (event) => {
-    event.sender.send('app_version', { version: app.getVersion() });
 });
 
 app.on('activate', () => {

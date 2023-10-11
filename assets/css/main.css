@@ -1,0 +1,31 @@
+.info{
+    background-color: var(--section-color);
+    padding: 20px;
+    border-radius: .5rem;
+    width: fit-content;
+    min-height: 50px;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.info span{
+    margin: 0;
+    font-size: 30px;
+    padding: 5px;
+    background: #444;
+    border-radius: .5rem
+}
+
+.info p{
+    margin: 0;
+    font-size: 20px;
+}
+
+.stats{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
