@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "electron": "^27.0.0",
+    "electron-updater": "^6.1.4"
+  },
+  "name": "lgjs-place",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "build": "electron-builder build --mac --win --publish never",
+    "deploy": "electron-builder build --mac --win --publish always"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/liam-gen/lgjs-place.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron-builder": "^24.6.4"
+  }
+}
